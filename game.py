@@ -2,7 +2,7 @@ import sys
 
 from objects.ball import Ball
 from objects.block import Block
-from objects.enemies._enemy import Enemy
+from objects.enemies._enemy import Enemy, EnemyFactory
 from objects.laser import Laser
 from objects.paddle import Paddle
 from objects.enemies.enemies import EnemyPyramid, EnemyCone, EnemyCube, EnemyMolecule
@@ -49,14 +49,15 @@ class Game:
 
         for t, color, x, y in blocks_data:
             if t == "enemy":
-                if color == "pyramid":
-                    self._enemies.append(EnemyPyramid(screen, x, y))
-                elif color == "cone":
-                    self._enemies.append(EnemyCone(screen, x, y))
-                elif color == "molecule":
-                    self._enemies.append(EnemyMolecule(screen, x, y))
-                elif color == "cube":
-                    self._enemies.append(EnemyCube(screen, x, y))
+                self._enemies.append(EnemyFactory.create(color, screen, x, y))
+                # if color == "pyramid":
+                #     self._enemies.append(EnemyPyramid(screen, x, y))
+                # elif color == "cone":
+                #     self._enemies.append(EnemyCone(screen, x, y))
+                # elif color == "molecule":
+                #     self._enemies.append(EnemyMolecule(screen, x, y))
+                # elif color == "cube":
+                #     self._enemies.append(EnemyCube(screen, x, y))
             elif t == "block":
                 self._enemies.append(Block(screen, color, x, y))
 
@@ -65,25 +66,26 @@ class Game:
     def _handle_collide_with_powerups(self):
         for sprite in self.all_sprites:
             if self.paddle.rect.colliderect(sprite.rect) and isinstance(sprite, Powerup):
-                if isinstance(sprite, PowerupCatch):
-                    self.ball.switch_catching()
-                    self.all_sprites.remove(sprite)
-
-                if isinstance(sprite, PowerupSlow):
-                    self.ball.stop_catching()
-                    self.ball.slow()
-
-                if isinstance(sprite, PowerupLife):
-                    self.ball.stop_catching()
-                    self.lives += 1
-
-                if isinstance(sprite, PowerupExpand):
-                    self.ball.stop_catching()
-                    self.paddle.start_expand()
-
-                if isinstance(sprite, PowerupLaser):
-                    self.ball.stop_catching()
-                    self.paddle.start_laser()
+                sprite.apply(self)
+                # if isinstance(sprite, PowerupCatch):
+                #     self.ball.switch_catching()
+                #     self.all_sprites.remove(sprite)
+                #
+                # if isinstance(sprite, PowerupSlow):
+                #     self.ball.stop_catching()
+                #     self.ball.slow()
+                #
+                # if isinstance(sprite, PowerupLife):
+                #     self.ball.stop_catching()
+                #     self.lives += 1
+                #
+                # if isinstance(sprite, PowerupExpand):
+                #     self.ball.stop_catching()
+                #     self.paddle.start_expand()
+                #
+                # if isinstance(sprite, PowerupLaser):
+                #     self.ball.stop_catching()
+                #     self.paddle.start_laser()
 
                 sprite.kill()
 
